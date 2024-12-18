@@ -22,7 +22,7 @@ jobs:
     - name: Build
       run: npm run build
     - name: Run the app
-      run: npm run start-prod
+      run: npm run start
     - name: Run Playwright tests
       run: npm run test:e2e
     - uses: actions/upload-artifact@v4
