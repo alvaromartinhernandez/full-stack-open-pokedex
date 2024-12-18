@@ -14,8 +14,8 @@ jobs:
         run: echo "Hello World!"
 
       - name: Show Date
-        run: echo date
-        
+        run: date
+
       - name: Show directory
         run: ls -l
 
