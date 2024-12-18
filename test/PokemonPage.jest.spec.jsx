@@ -112,7 +112,6 @@ describe('<PokemonPage />', () => {
         </MemoryRouter>,
       )
     })
-
     expect(screen.getByText('Previous')).toHaveAttribute('href', '/pokemon/ditto')
     expect(screen.getByText('Next')).toHaveAttribute('href', '/pokemon/vaporeon')
   })
