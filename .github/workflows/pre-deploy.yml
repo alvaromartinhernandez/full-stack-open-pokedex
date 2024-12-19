@@ -1,0 +1,60 @@
+name: PreDeploy Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies 
+        run: npm install
+      - name: Linting
+        run: npm run eslint
+
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Instalar dependencias
+        run: npm install
+      #- name: Build
+      #  run: npm run build
+      - name: Test
+        run: npm run test
+
+  e2e:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Instalar dependencias
+        run: npm install
+      - name: Construir la aplicación
+        run: npm run build
+      - name: Iniciar servidor para pruebas
+        run: npm run start-prod &
+        env:
+          PORT: 5000
+      - name: Esperar que el servidor esté listo
+        run: npx wait-on http://localhost:5000
+        
+      - name: Instalar Playwright
+        run: npx playwright install --with-deps
+        
+      - name: Ejecutar pruebas E2E
+        run: npm run test:e2e
