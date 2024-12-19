@@ -5,8 +5,8 @@ on:
     branches:
       - main
   pull_request:
-    branches:
-      - main
+    branches: [main]
+    types: [opened, synchronize]
 
 jobs:
   lint:
@@ -55,6 +55,6 @@ jobs:
         
       - name: Instalar Playwright
         run: npx playwright install --with-deps
-        
+
       - name: Ejecutar pruebas E2E
         run: npm run test:e2e
