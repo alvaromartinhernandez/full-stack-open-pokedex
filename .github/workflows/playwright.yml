@@ -17,6 +17,8 @@ jobs:
         run: npm run eslint
       - name: Build
         run: npm run build
+      - name: Start prod env
+        run: npm run start-prod
       - name: testing
         run: npm run test
       - name: e2e testing
