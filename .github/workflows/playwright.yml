@@ -10,16 +10,29 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js 14.x
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 14.x
-      - name: Install dependencies
+          node-version: 20
+
+      - name: Instalar dependencias
         run: npm install
-      - name: Install Playwright
-        run: npx playwright install
-      - name: Run tests:e2e
+
+      - name: Construir aplicación
+        run: npm run build
+
+      - name: Iniciar servidor para pruebas
+        run: npm run start-prod &
+        env:
+          PORT: 5000
+
+      - name: Esperar que el servidor esté listo
+        run: npx wait-on http://localhost:5000
+
+      - name: Instalar Playwright
+        run: npx playwright install --with-deps
+
+      - name: Ejecutar pruebas e2e
         run: npm run test:e2e
  
  
