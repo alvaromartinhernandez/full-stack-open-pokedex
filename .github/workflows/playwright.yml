@@ -21,6 +21,9 @@ jobs:
       - name: Construir aplicación
         run: npm run build
 
+      - name: linting
+        run: npm run eslint
+
       - name: Iniciar servidor para pruebas
         run: npm run start-prod &
         env:
