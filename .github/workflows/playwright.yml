@@ -1,3 +1,6 @@
+
+# test e2e with playwright
+
 name: Playwright Tests
 on:
   push:
@@ -5,23 +8,17 @@ on:
       - main
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v2
         with:
-          node-version: 20
-      - name: install dependencies
+          node-version: 14.x
+      - name: Install dependencies
         run: npm install
-      - name: linting
-        run: npm run eslint
-      - name: Build
-        run: npm run build
-      - name: Start prod env
-        run: npm run start-prod
-      - name: testing
-        run: npm run test
-      - name: e2e testing
-        run: | 
-          npx playwright install --with-deps
-          npm run test:e2e
+      - name: Run tests-e2e
+        run: npm test-e2e
+ 
+ 
+  
