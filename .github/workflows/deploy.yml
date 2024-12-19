@@ -37,3 +37,13 @@ jobs:
             max-attempts: 3
             retry-delay: 5s
             follow-redirect: true
+
+  tag_release:
+    needs: [deploy]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Bump version and push tag
+        if: ${{ github.event_name == 'push' }}
+        uses: anothrNick/github-tag-action@1.71.0
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
