@@ -1,4 +1,6 @@
 name: Deploy Pipeline
+env:
+  SKIP_DEPLOY: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip') }}
 on:
   push:
     branches:
@@ -16,21 +18,21 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Instalar dependencias
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ env.SKIP_DEPLOY == 'true' }}
         run: npm install
 
       - name: Construir aplicación
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ env.SKIP_DEPLOY == 'true' }}
         run: npm run build
 
       - name: Deploy app
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ env.SKIP_DEPLOY == 'true' }}
         run: flyctl deploy --remote-only -a ${{ secrets.FLY_APP_NAME }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       - name: Check the deployed service URL
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ env.SKIP_DEPLOY == 'true' }}
         uses: jtalk/url-health-check-action@v4
         with:
             url: https://${{ secrets.FLY_APP_NAME }}.fly.dev/health
@@ -50,3 +52,27 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             WITH_V: true
             DEFAULT_BUMP: patch
+  notify:
+    needs: [deploy, tag_release]
+    runs-on: ubuntu-20.04
+    if: always()
+    steps:
+      - name: Build succeeded
+        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
+        if: ${{ !contains(needs.*.result, 'failure') }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: |
+            "A new version of Pokedex has been deployed
+            to https://full-stack-open-pokedex-summer-voice-6058.fly.dev/
+            by: ${{ github.actor }}"
+
+      - name: Build failed
+        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
+        if: ${{ contains(needs.*.result, 'failure') }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: |
+            "commit ${{ github.sha }} by ${{ github.actor }} broke the build :("
