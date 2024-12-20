@@ -1,4 +1,6 @@
 name: Deploy Pipeline
+env:
+  SKIP_DEPLOY: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip') }}
 on:
   push:
     branches:
@@ -16,21 +18,21 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Instalar dependencias
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ env.SKIP_DEPLOY == 'true' }}
         run: npm install
 
       - name: Construir aplicación
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ env.SKIP_DEPLOY == 'true' }}
         run: npm run build
 
       - name: Deploy app
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ env.SKIP_DEPLOY == 'true' }}
         run: flyctl deploy --remote-only -a ${{ secrets.FLY_APP_NAME }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       - name: Check the deployed service URL
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ env.SKIP_DEPLOY == 'true' }}
         uses: jtalk/url-health-check-action@v4
         with:
             url: https://${{ secrets.FLY_APP_NAME }}.fly.dev/health
